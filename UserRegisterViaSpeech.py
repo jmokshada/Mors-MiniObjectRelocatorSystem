@@ -21,7 +21,7 @@ n=""
 p=""
 connection = mysql.connector.connect(host='localhost',
                                      user='mok',
-                                     password='Mocktail1.')
+                                     password='root')
 cursor = connection.cursor()
 cursor.execute("SHOW DATABASES")
 lst = cursor.fetchall()
@@ -55,7 +55,7 @@ def insertBLOB(name, number, SampleVoice):
         connection = mysql.connector.connect(host='localhost',
                                              database='mors',
                                              user='root',
-                                             password='Mocktail1.')
+                                             password='root')
 
         cursor = connection.cursor()
         sql_insert_blob_query = """ INSERT INTO mors
