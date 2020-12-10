@@ -55,7 +55,7 @@ def insertBLOB(name, number, SampleVoice):
         connection = mysql.connector.connect(host='localhost',
                                              database='mors',
                                              user='root',
-                                             password='root')
+                                             password='Mocktail1.')
 
         cursor = connection.cursor()
         sql_insert_blob_query = """ INSERT INTO mors
@@ -80,7 +80,7 @@ def insertBLOB(name, number, SampleVoice):
 
 def speak(text):
     tts = gTTS(text=text, lang="en")
-    filename = "voice11.mp3"
+    filename = "voice1.mp3"
     tts.save(filename)
     playsound.playsound(filename)
 
@@ -136,7 +136,7 @@ try:
         # soundfile expects an int, sounddevice provides a float:
         args.samplerate = int(device_info['default_samplerate'])
     if args.filename is None:
-        args.filename = tempfile.mktemp(prefix='mok_rec_unlimited_',
+        args.filename = tempfile.mktemp(prefix='mors_rec_unlimited_',
                                         suffix='.wav', dir='')
         name = args.filename
         print(name)
@@ -177,7 +177,7 @@ if __name__ == "__main__":
 
 def speak(text):
     tts = gTTS(text=text, lang="en")
-    filename = "voice12.mp3"
+    filename = "voice2.mp3"
     tts.save(filename)
     playsound.playsound(filename)
 
@@ -233,7 +233,7 @@ try:
         # soundfile expects an int, sounddevice provides a float:
         args.samplerate = int(device_info['default_samplerate'])
     if args.filename is None:
-        args.filename = tempfile.mktemp(prefix='delme_rec_unlimited_',
+        args.filename = tempfile.mktemp(prefix='mors_rec_unlimited_',
                                         suffix='.wav', dir='')
         nam = args.filename
 
@@ -271,7 +271,7 @@ if __name__ == "__main__":
 
 def speak(text):
     tts = gTTS(text=text, lang="en")
-    filename = "voice13.mp3"
+    filename = "voice3.mp3"
     tts.save(filename)
     playsound.playsound(filename)
 
