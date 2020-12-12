@@ -16,13 +16,17 @@ from gtts import gTTS
 
 import mysql.connector
 from mysql.connector import Error
+
 name = ""
+nam = ""
 n=""
 p=""
+
 connection = mysql.connector.connect(host='localhost',
-                                     user='mok',
+                                     user='root',
                                      password='root')
 cursor = connection.cursor()
+#For checking if a database already exist
 cursor.execute("SHOW DATABASES")
 lst = cursor.fetchall()
 data_name="mors"
@@ -31,53 +35,42 @@ if (data_name,) in lst:
 else: 
     cursor.execute("create database {}".format(data_name))
     cursor.execute("USE{}".format(data_name))
-
+#For checking if table already exist 
 cursor.execute("SHOW TABLES")
 lst = cursor.fetchall()
 data_name="mors"
 if (data_name,) in lst:
-    'break'
+    print("")
 else: 
-   cursor.execute("CREATE TABLE mors (user_id MEDIUMINT NOT NULL AUTO_INCREMENT, name VARCHAR(30) NOT NULL, number INTEGER(10) NOT NULL, SampleVoice VARCHAR(50) NOT NULL, PRIMARY KEY(user_id))")
+   cursor.execute("CREATE TABLE mors (user_id MEDIUMINT NOT NULL AUTO_INCREMENT, name VARCHAR(30) NOT NULL, number VARCHAR(15) NOT NULL, SampleVoice VARCHAR(50) NOT NULL, PRIMARY KEY(user_id))")
 if (connection.is_connected()):
     cursor.close()
     connection.close()
 
-#def convertToBinaryData(filename):
-    # Convert digital data to binary format
-   # with open(filename, 'rb') as file:
-        #binaryData = file.read()
-    #return binaryData
-
 def insertBLOB(name, number, SampleVoice):
-    #"Inserting BLOB into Mors table"
+    #"Inserting BLOB into mors table"
     try:
         connection = mysql.connector.connect(host='localhost',
                                              database='mors',
                                              user='root',
                                              password='root')
-
         cursor = connection.cursor()
         sql_insert_blob_query = """ INSERT INTO mors
-                          (name, number, SampleVoice) VALUES (%s,%d,%s)"""
-
-        #userVoice = convertToBinaryData(SampleVoice)
-
+                          (name, number, SampleVoice) VALUES (%s,%s,%s)"""
         # Convert data into tuple format
         insert_blob_tuple = (name, number, SampleVoice)
         result = cursor.execute(sql_insert_blob_query, insert_blob_tuple)
         connection.commit()
-        print(" file inserted successfully into mors table", result)
-
+        print("\nfile inserted successfully into mors table", result)
     except mysql.connector.Error as error:
         print("Failed inserting data into MySQL table {}".format(error))
-
     finally:
         if (connection.is_connected()):
             cursor.close()
             connection.close()
-            print("MySQL connection is closed")
+            #print("MySQL connection is closed")
 
+#Text to audio conversion through Speech Recognition
 def speak(text):
     tts = gTTS(text=text, lang="en")
     filename = "voice1.mp3"
@@ -93,7 +86,6 @@ def int_or_str(text):
     except ValueError:
         return text
 
-
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument(
     '-l', '--list-devices', action='store_true',
@@ -119,16 +111,13 @@ parser.add_argument(
 parser.add_argument(
     '-t', '--subtype', type=str, help='sound file subtype (e.g. "PCM_24")')
 args = parser.parse_args(remaining)
-
 q = queue.Queue()
-
 
 def callback(indata, frames, time, status):
     """This is called (from a separate thread) for each audio block."""
     if status:
         print(status, file=sys.stderr)
     q.put(indata.copy())
-
 
 try:
     if args.samplerate is None:
@@ -139,8 +128,6 @@ try:
         args.filename = tempfile.mktemp(prefix='mors_rec_unlimited_',
                                         suffix='.wav', dir='')
         name = args.filename
-        print(name)
-
     # Make sure the file is opened before recording anything:
     with sf.SoundFile(args.filename, mode='x', samplerate=args.samplerate,
                       channels=args.channels, subtype=args.subtype) as file:
@@ -151,30 +138,33 @@ try:
             print('#' * 80)
             while True:
                 file.write(q.get())
-
 except KeyboardInterrupt:
     print('\nRecording finished: ' + repr(args.filename))
 
 except Exception as e:
     parser.exit(type(e).__name__ + ': ' + str(e))
-
-
 #File_object = open(r"args.filename", "Access_Mode")
+
+#converting audio to text via Speech Recognition
 def main():
           r = sr.Recognizer()
           with sr.AudioFile(name) as source:
               r.adjust_for_ambient_noise(source)
               audio = r.listen(source)
-              n = r.recognize_google(audio, language = 'pt', show_all=True)
-
+              n = r.recognize_google(audio)
+              #print("\nvalue of n:\n" +n)
               try:
-                  print("Converted Audio is : \n" + n)
+                  print("\nConverted Audio is : \n" + n)
               except Exception as e:
                   print("Exception: " + str(e))
+              return n
 
 if __name__ == "__main__":
-    main()
+    n = main()
+#print("\nvalue of n: \n " +n)
+#print("\nvalue of name: \n " +name)
 
+#Text to audio conversion through Speech Recognition
 def speak(text):
     tts = gTTS(text=text, lang="en")
     filename = "voice2.mp3"
@@ -190,7 +180,6 @@ def int_or_str(text):
     except ValueError:
         return text
 
-nam = ""
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument(
     '-l', '--list-devices', action='store_true',
@@ -216,16 +205,13 @@ parser.add_argument(
 parser.add_argument(
     '-t', '--subtype', type=str, help='sound file subtype (e.g. "PCM_24")')
 args = parser.parse_args(remaining)
-
 q = queue.Queue()
-
 
 def callback(indata, frames, time, status):
     """This is called (from a separate thread) for each audio block."""
     if status:
         print(status, file=sys.stderr)
     q.put(indata.copy())
-
 
 try:
     if args.samplerate is None:
@@ -236,12 +222,12 @@ try:
         args.filename = tempfile.mktemp(prefix='mors_rec_unlimited_',
                                         suffix='.wav', dir='')
         nam = args.filename
-
     # Make sure the file is opened before recording anything:
     with sf.SoundFile(args.filename, mode='x', samplerate=args.samplerate,
                       channels=args.channels, subtype=args.subtype) as file:
         with sd.InputStream(samplerate=args.samplerate, device=args.device,
                             channels=args.channels, callback=callback):
+            print('\n')
             print('#' * 80)
             print('press Ctrl+C to stop the recording')
             print('#' * 80)
@@ -253,22 +239,27 @@ except KeyboardInterrupt:
 except Exception as e:
     parser.exit(type(e).__name__ + ': ' + str(e))
 
+#converting audio to text via Speech Recognition
 def main():
           r = sr.Recognizer()
           with sr.AudioFile(nam) as source:
               r.adjust_for_ambient_noise(source)
               audio = r.listen(source)
               p = r.recognize_google(audio)
-              print("value of p: \n " +p)
+              #print("\nvalue of p: \n " +p)
 
               try:
-                  print("Converted Audio is : \n" + p)
+                  print("\nConverted Audio is : \n" + p)
               except Exception as e:
                   print("Exception: " + str(e))
+              return p
 
 if __name__ == "__main__":
-    main()
+    p = main()
+#print("\nvalue of nam: \n " +nam)
+#print("\nvalue of p: \n " +p)
 
+#converting text to speech using Speech Recognition
 def speak(text):
     tts = gTTS(text=text, lang="en")
     filename = "voice3.mp3"
@@ -277,4 +268,9 @@ def speak(text):
 
 speak("ok thank you")
 
-insertBLOB( n, p, name)
+#print("\n\nvalue of name: \n " +name)
+#print("\nvalue of n: \n " +n)
+#print("\nvalue of nam: \n " +nam)
+#print("\nvalue of p: \n " +p)
+
+insertBLOB(n, p, name)
