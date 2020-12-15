@@ -47,6 +47,12 @@ if (connection.is_connected()):
     cursor.close()
     connection.close()
 
+def spek(text):
+    tts = gTTS(text=text, lang="en")
+    filename = "voice4.mp3"
+    tts.save(filename)
+    playsound.playsound(filename)
+
 def insertBLOB(name, number, SampleVoice):
     #"Inserting BLOB into mors table"
     try:
@@ -62,8 +68,10 @@ def insertBLOB(name, number, SampleVoice):
         result = cursor.execute(sql_insert_blob_query, insert_blob_tuple)
         connection.commit()
         print("\nfile inserted successfully into mors table", result)
+        spek("you are registered successfully as" + n + "and your phone number is" + p)
     except mysql.connector.Error as error:
         print("Failed inserting data into MySQL table {}".format(error))
+        spek("registration failed try again")
     finally:
         if (connection.is_connected()):
             cursor.close()
